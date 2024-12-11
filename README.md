@@ -14,5 +14,7 @@ Use the scrpit `CB3.sh` for batch process
 20X 32 μm 100 piex
 
 Use the script `cell_count_2.ijm` to calculate the diameters (from the area)
-**scale bar**
+
+**add scale bar**
+
 Use the script `scale_bar.ijm` to add scale bar
