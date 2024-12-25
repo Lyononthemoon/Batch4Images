@@ -3,6 +3,11 @@
 
 Use the scrpit `CB3.sh` for batch process
 
+`chmod 777 CB3.sh`
+
+`./CB3.sh`
+
+
 ## Usage ImageJ
 
 **set the scale**
