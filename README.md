@@ -26,7 +26,7 @@ Use the script `cell_count_2.ijm` to calculate the diameters (from the area)
 
 Use the script `scale_bar.ijm` to add scale bar
 
-## Select round >=0.85
+## Select Round >=0.85
 
 Use the script `batch_filter.py` 
 
