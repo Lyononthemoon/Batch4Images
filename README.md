@@ -20,7 +20,7 @@ Use the scrpit `CB3.sh` for batch process
 
 4.2X 153 μm 100 piex
 
-Use the script `cell_count_2.ijm` to calculate the diameters (from the area)
+Use the script `cell_count_3.ijm` to calculate the diameters (from the area)
 
 **add scale bar**
 
