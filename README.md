@@ -23,8 +23,20 @@
 ## Overview
 本仓库包含用于图像分割（Cellpose）、度量（ImageJ 宏）和���处理/筛选（Python）的脚本。典型流程：
 1. 用 `CB3.sh` 批量运行 Cellpose 进行分割。
-2. 用 ImageJ 宏计算面积/直径并添加比例尺。
-3. 用 `batch_filter.py` 根据 roundness（或其它指标）筛选结果。
+
+3. 用 ImageJ 宏计算面积/直径并添加比例尺。
+
+  **set the scale**
+
+    80X 8 μm 100 piex 12.5 μm per piex
+
+    40X 16 μm 100 piex 6.25 μm per piex
+  
+    20X 32 μm 100 piex 3.125 μm per piex
+
+    4.2X 153 μm 100 piex 0.6535 μm per piex
+     
+5. 用 `batch_filter.py` 根据 roundness（或其它指标）筛选结果。
 
 ## Requirements
 - Linux / macOS（脚本为 shell 脚本）
@@ -38,31 +50,6 @@
 2. 下载并安装 Fiji/ImageJ：https://fiji.sc/
 3. 安装 Python 依赖（示例）：
 
---- a/README.md
-+++ b/README.md
-@@ -1,34 +1,201 @@
--# Batch4Images
--## Usage [cellpose](http://www.cellpose.org/)
--
--Use the scrpit `CB3.sh` for batch process
--
--`chmod 777 CB3.sh`
--
--`./CB3.sh`
--
--## Usage ImageJ
--
--**set the scale**
--
--80X 8 μm 100 piex
--
--40X 16 μm 100 piex
--
--20X 32 μm 100 piex
--
--4.2X 153 μm 100 piex
--
--Use the script `cell_count_3.ijm` to calculate the diameters (from the area)
 -
 -**add scale bar**
 -
@@ -78,23 +65,7 @@
 +简短说明
 +- Batch4Images：用于对图片批量处理并计算/筛选细胞/颗粒相关指标（基于 Cellpose + ImageJ 宏 + Python 过滤脚本）。
 +- 目标：提供一个从分割到测量再到筛选的自动化处理流程。
-+
-+## 目录
-+- Overview
-+- Requirements
-+- Installation
-+- Usage
-+  - 使用 Cellpose 脚本（CB3.sh）
-+  - 使用 ImageJ 宏（cell_count_3.ijm、scale_bar.ijm）
-+  - 筛选脚本（batch_filter.py）
-+- 示例目录结构
-+- 示例命令
-+- 输出说明
-+- 常见问题
-+- 许可证 & 联系方式
-+
-+---
-+
+
 +## Overview
 +本仓库包含用于图像分割（Cellpose）、度量（ImageJ 宏）和后处理/筛选（Python）的脚本。典型流程：
 +1. 用 `CB3.sh` 批量运行 Cellpose 进行分割。
