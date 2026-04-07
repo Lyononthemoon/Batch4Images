@@ -1,15 +1,18 @@
-// BatchMeasureFixedOrder2.ijm
-// 1. 选择同一文件夹（含 .tif 图像 和 _rois.zip）
+// BatchMeasureFixedOrder2_withEdgeFilter.ijm
+// 功能：批量处理文件夹中的图像，根据文件名索引自动设置标尺，加载同名 ROI ZIP，
+//       删除边界接触的 ROI，然后测量并保存结果。
+
+// 1. 选择包含图像和 _rois.zip 的文件夹
 dir = getDirectory("Choose Directory");
 
-// 定义 µm/pixel
-scale20 = 32.0/100.0; // 0.32 µm/px
-scale40 = 16.0/100.0; // 0.16 µm/px
-scale80 =  8.0/100.0; // 0.08 µm/px
+// 定义 µm/pixel（可根据实际显微镜物镜调整）
+scale20 = 32.0 / 100.0; // 0.32 µm/px (20×)
+scale40 = 16.0 / 100.0; // 0.16 µm/px (40×)
+scale80 =  8.0 / 100.0; // 0.08 µm/px (80×)
 
-// 读取并过滤出图像文件（保持 getFileList 的顺序）
+// 获取文件列表并过滤出图像文件（保持顺序）
 allFiles = getFileList(dir);
-imageList = newArray(); 
+imageList = newArray();
 count = 0;
 for (i = 0; i < allFiles.length; i++) {
     name = allFiles[i];
@@ -21,17 +24,15 @@ for (i = 0; i < allFiles.length; i++) {
     }
 }
 
-// 可选：在 Console 打印出来，确认顺序
 print("=== Image list (0–" + (count-1) + ") ===");
-for (i = 0; i < count; i++)
-    print(i + ": " + imageList[i]);
+for (i = 0; i < count; i++) print(i + ": " + imageList[i]);
 
-// 批处理：严格按 imageList 的索引映射到 20×/40×/80×
+// 批处理主循环
 for (i = 0; i < count; i++) {
     name = imageList[i];
     open(dir + name);
     
-    // 根据索引设置标尺
+    // 根据索引设置标尺（前5张20×，接着5张40×，其余80×）
     if (i <= 4) {
         run("Set Scale...", "distance=1 known=" + scale20 + " unit=µm global");
     } else if (i <= 9) {
@@ -40,28 +41,51 @@ for (i = 0; i < count; i++) {
         run("Set Scale...", "distance=1 known=" + scale80 + " unit=µm global");
     }
     
-    // 加载同名 ROI ZIP
-    dot    = lastIndexOf(name, ".");
-    base   = substring(name, 0, dot);
+    // 加载同名 ROI ZIP 文件
+    dot = lastIndexOf(name, ".");
+    base = substring(name, 0, dot);
     roiZip = dir + base + "_rois.zip";
     roiManager("Reset");
     if (File.exists(roiZip)) {
         roiManager("Open", roiZip);
+        print("Loaded ROI: " + roiZip);
     } else {
         print("Warning: missing ROI: " + roiZip);
+        close();
+        continue; // 无 ROI 则跳过该图像
     }
     
-    // 测量并计算直径
-    roiManager("Measure");
-    Table.applyMacro("Diameter = sqrt(4 * Area / PI);");
+    // ========== 边缘过滤：删除与图像边界相交的 ROI ==========
+    width = getWidth();
+    height = getHeight();
+    n = roiManager("count");
+    // 从后向前遍历，避免删除后索引错乱
+    for (j = n-1; j >= 0; j--) {
+        roiManager("select", j);
+        // 获取当前 ROI 的边界矩形（单位：像素）
+        Roi.getBounds(x, y, w, h);
+        // 判断矩形是否触及图像边缘
+        if (x <= 0 || y <= 0 || (x + w) >= width || (y + h) >= height) {
+            roiManager("delete");
+            print("  Removed edge-touching ROI #" + j);
+        }
+    }
+    // ====================================================
     
-    // 保存结果
-    saveAs("Results", dir + base + ".csv");
+    // 测量剩余 ROI
+    if (roiManager("count") > 0) {
+        roiManager("Measure");
+        Table.applyMacro("Diameter = sqrt(4 * Area / PI);");
+        // 保存结果
+        saveAs("Results", dir + base + ".csv");
+    } else {
+        print("No ROI remaining after edge filtering for: " + name);
+    }
     
-    // 关闭
+    // 清理并关闭图像
     close("Results");
+    roiManager("Reset");
     close();
 }
 
 print("Batch processing complete!");
-
