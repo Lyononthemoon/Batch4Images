@@ -55,23 +55,25 @@ for (i = 0; i < count; i++) {
         continue; // 无 ROI 则跳过该图像
     }
     
-    // ========== 边缘过滤：删除与图像边界相交的 ROI ==========
-    width = getWidth();
-    height = getHeight();
-    n = roiManager("count");
-    // 从后向前遍历，避免删除后索引错乱
-    for (j = n-1; j >= 0; j--) {
-        roiManager("select", j);
-        // 获取当前 ROI 的边界矩形（单位：像素）
-        Roi.getBounds(x, y, w, h);
-        // 判断矩形是否触及图像边缘
-        if (x <= 0 || y <= 0 || (x + w) >= width || (y + h) >= height) {
-            roiManager("delete");
-            print("  Removed edge-touching ROI #" + j);
-        }
-    }
-    // ====================================================
     
+// ========== 边缘过滤：删除靠近图像边缘的 ROI ==========
+width = getWidth();
+height = getHeight();
+edgeMargin = 5;   // 边缘阈值（像素），可自行调整
+n = roiManager("count");
+for (j = n-1; j >= 0; j--) {
+    roiManager("select", j);
+    Roi.getBounds(x, y, w, h);
+    // 判断边界框是否靠近边缘（任一方向距离小于 edgeMargin）
+    if (x < edgeMargin || y < edgeMargin || 
+        (x + w) > (width - edgeMargin) || 
+        (y + h) > (height - edgeMargin)) {
+        roiManager("delete");
+        print("  Removed edge-touching ROI #" + j);
+    }
+}
+// ====================================================
+     
     // 测量剩余 ROI
     if (roiManager("count") > 0) {
         roiManager("Measure");
